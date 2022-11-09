@@ -75,7 +75,5 @@ if __name__ == '__main__':
 
     #Button(root, text='Quit', command=root.quit).grid(row=5, sticky=W, pady=1)
     #Button(root, text='Show', command=var_states).grid(row=6, sticky=W, pady=1)
-
-
     root.mainloop()
 
