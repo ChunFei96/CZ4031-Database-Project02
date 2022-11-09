@@ -1,7 +1,6 @@
 import json
 from tkinter import *
 from anytree import AnyNode
-import node_types
 import copy
 
 root = Tk()
