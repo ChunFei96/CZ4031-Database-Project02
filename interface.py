@@ -1,4 +1,8 @@
+import json
 from tkinter import *
+from anytree import AnyNode
+import node_types
+import copy
 
 root = Tk()
 root.title('Project 2: Query Plan')
@@ -17,9 +21,6 @@ DISABLE_BITMAPSCAN_QUERY = "query to append for disable"
 
 
 def run():
-    label = Label(root, text=enable_hashjoin.get())
-    # label.pack()
-    print(enable_hashjoin.get())
     # todo
     return
 
@@ -30,7 +31,7 @@ def clear():
     # todo
     return
 
-    ### Checkbuttons ###
+### Checkbuttons ###
 
 
 enable_hashjoin = StringVar()
@@ -65,9 +66,32 @@ clearButton = Button(root, text="Clear", command=clear)
 ### Inputs ###
 queryLabel = Label(root, text="Query:", padx=5, pady=0)
 queryBox = Text(root, width=130, height=5)
-annotationLabel = Label(root, text="Annotation:", padx=5, pady=0)
-annotationBox = Text(root, width=155, height=5,
-                     state="disabled", bg='lightgray')
+
+### ======================================= ###
+
+### Dividers ###
+divider = Label(root, text="________", padx=0, pady=0)
+divider1 = Label(root, text="________", padx=0, pady=0)
+divider2 = Label(root, text="________", padx=0, pady=0)
+divider3 = Label(root, text="________", padx=0, pady=0)
+divider4 = Label(root, text="________", padx=0, pady=0)
+divider5 = Label(root, text="________", padx=0, pady=0)
+
+### ======================================= ###
+
+
+### Query Plan ###
+qepLabel = Label(root, text="Query Execution Plan:", padx=5, pady=1)
+qepAnnotationBox = Text(root, width=75, height=4,
+                        state="disabled", bg='lightgray')
+qepGraphicframe = Frame(root)
+dummyQepButton = Button(qepGraphicframe, text="QEP", fg="red").pack()
+
+aqpLabel = Label(root, text=" Alternate Query Plans:", padx=5, pady=1)
+aqpAnnotationBox = Text(root, width=75, height=4,
+                        state="disabled", bg='lightgray')
+aqpGraphicframe = Frame(root)
+dummyAqpButton = Button(aqpGraphicframe, text="AQP", fg="red").pack()
 
 ### ======================================= ###
 
@@ -81,10 +105,17 @@ cb_mj.grid(row=1, column=0, padx=10, pady=1)
 cb_is.grid(row=2, column=0, padx=10, pady=1)
 cb_bms.grid(row=3, column=0, padx=10, pady=1)
 queryLabel.grid(row=0, column=3, sticky="W")
-queryBox.grid(row=1, column=3, rowspan=3, padx=5, pady=2)
-annotationLabel.grid(row=4, column=0, columnspan=4, sticky="W")
-annotationBox.grid(row=5, column=0, columnspan=4, padx=5, pady=2)
+queryBox.grid(row=1, column=3, rowspan=3, columnspan=3, padx=5, pady=2)
+
+qepLabel.grid(row=5, column=0, columnspan=2, sticky="w")
+qepAnnotationBox.grid(row=6, column=0, columnspan=4, padx=5, pady=2)
+qepGraphicframe.grid(row=7, column=0, columnspan=4, padx=5, pady=2)
+
+aqpLabel.grid(row=5, column=4, columnspan=2, sticky="w")
+aqpAnnotationBox.grid(row=6, column=4, columnspan=3, padx=5, pady=2)
+aqpGraphicframe.grid(row=7, column=4, columnspan=3, padx=5, pady=2)
 
 ### ======================================= ###
+
 
 root.mainloop()
