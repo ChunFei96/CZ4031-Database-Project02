@@ -188,7 +188,8 @@ def run():
             host="localhost",
             database="TPC-H",
             user="postgres",
-            password="root")
+            password="postgres",
+            port = 5433)
 
         cur = conn.cursor()
         cur.execute(
@@ -216,10 +217,8 @@ def run():
     inputValue = sqlparse.format(
         inputValue, reindent=True, keyword_case='upper')
 
-    # query_frame = QueryFrame(top_level)
-    # query_frame.set_query(query)
+    queryBox.set_query(inputValue)
 
-    # query_frame.grid(row=0, column=0, sticky='ew')
 
     annotation = Annotation()
     treeQEP = Tree()
