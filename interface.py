@@ -6,20 +6,12 @@ import node_types
 from annotation import Annotation
 from treelib import Node, Tree
 import sqlparse
-import preprocessing as preprocess
+from preprocessing import Preprocessing
 
 root = Tk()
 root.title('Project 2: Query Plan')
 root.geometry('1280x800')
-
-ENABLE_HASHJOIN_QUERY = "query to append for enable"
-DISABLE_HASHJOIN_QUERY = "query to append for disable"
-ENABLE_MERGEJOIN_QUERY = "query to append for enable"
-DISABLE_MERGEJOIN_QUERY = "query to append for disable"
-ENABLE_INDEXSCAN_QUERY = "query to append for enable"
-DISABLE_INDEXSCAN_QUERY = "query to append for disable"
-ENABLE_BITMAPSCAN_QUERY = "query to append for enable"
-DISABLE_BITMAPSCAN_QUERY = "query to append for disable"
+root.resizable(False,False)
 
 # Function for run
 
@@ -48,8 +40,9 @@ NODE_COLORS = {node_type: color
 class TreeFrame(Frame):
     def __init__(self, root):
         Frame.__init__(self, root)
-        self.canvas = Canvas(self, background='#c5ded2')
+        self.canvas = Canvas(self, background='#0eedde')
         self.canvas.grid(row=0, column=1)
+        self.canvas.config(width=500, height=500)
 
         self._on_hover_listener = None
         self._on_click_listener = None
@@ -121,7 +114,7 @@ class TreeFrame(Frame):
 class QueryFrame(Frame):
     def __init__(self, root):
         Frame.__init__(self, root)
-        self.text = Text(self, width=130, height=5)
+        self.text = Text(self, width=130, height=10)
         self.text.grid(row=0, column=0)
         self.scrollbar = Scrollbar(
             self, orient='vertical', command=self.text.yview)
@@ -172,17 +165,18 @@ class QueryFrame(Frame):
     def get_text(self):
         return self.text.get('1.0', 'end-1c')
 
+
 # GUI for displaying the analysis from the tree to the analysis frame
 class AnalysisFrame(Frame):
     def __init__(self, root):
         Frame.__init__(self, root)
-        #self.text_font = Font(family='Fira Code Retina', size=12)
-        self.text = Text(self, height=10)
+        Font_tuple = ("Calibri", 12, "bold")
+        self.text = Text(self, width=75, height=5)
 
         self.text.grid(row=1, column=0)
         self.scrollbar = Scrollbar(self, orient='vertical', command=self.text.yview)
         self.scrollbar.grid(row=1, column=1, sticky='ns')
-        self.text.configure(yscrollcommand=self.scrollbar.set)
+        self.text.configure(yscrollcommand=self.scrollbar.set, state="disabled", bg='grey', fg='white', font=Font_tuple)
 
         for node_type, color in NODE_COLORS.items():
             self.text.tag_configure(node_type, background=color[0], foreground=color[1])
@@ -192,43 +186,26 @@ class AnalysisFrame(Frame):
         self.query = None
 
     def show_node_annotation(self, annotation):
+        self.text.configure(state="normal")
         self.text.delete('1.0', 'end')
         self.text.insert('end', annotation)
+        self.text.configure(state="disabled")
 
+def getAQPConfig():
+    result = {'enable_hashjoin': enable_hashjoin.get(), 'enable_mergejoin': enable_mergejoin.get(),
+              'enable_indexscan': enable_indexscan.get(), 'enable_seqscan': enable_seqscan.get()}
+
+    return result
 def run():
-    # todo
     inputValue = queryBox.get_text()
+    json_QEP, json_AQP = Preprocessing.get_json(inputValue, getAQPConfig())
 
-    conn = None
-    x = None
-    try:
-        # connect to postgres in this format
-        conn = psycopg2.connect(
-            host="localhost",
-            database="TPC-H",
-            user="postgres",
-            password="postgres",
-            port = 5433)
-
-        cur = conn.cursor()
-        cur.execute(
-            "EXPLAIN (ANALYZE, VERBOSE, FORMAT JSON)" + inputValue)
-        rows = cur.fetchall()
-        x = json.dumps(rows)
-
-        cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
-    print("success")
-    plan_QEP = x
+    plan_QEP = json_QEP
     plan_QEP = plan_QEP[2:-2]
 
     plan_QEP = json.loads(plan_QEP)
 
-    plan_AQP = x
+    plan_AQP = json_AQP
     plan_AQP = plan_AQP[2:-2]
 
     plan_AQP = json.loads(plan_AQP)
@@ -237,7 +214,6 @@ def run():
     inputValue = sqlparse.format(inputValue, reindent=True, keyword_case='upper')
 
     queryBox.set_query(inputValue)
-
 
     annotation = Annotation()
     treeQEP = Tree()
@@ -273,37 +249,22 @@ def run():
     aqpGraphicframe.set_on_hover_listener(on_hover_listener, treeAQP_highlight)
     aqpGraphicframe.set_on_hover_end_listener(on_hover_end_listener)
 
-    return x
-
-# Function for clear
-
-
 def clear():
-    # todo
-    return
+    pass
 
 ### Checkbuttons ###
 
+enable_hashjoin = IntVar(value=1)
+cb_hj = Checkbutton(root, text="enable_hashjoin", variable=enable_hashjoin)
 
-enable_hashjoin = StringVar()
-enable_hashjoin.set(ENABLE_HASHJOIN_QUERY)
-cb_hj = Checkbutton(root, text="enable_hashjoin", variable=enable_hashjoin,
-                    onvalue=ENABLE_HASHJOIN_QUERY, offvalue=DISABLE_HASHJOIN_QUERY)
+enable_mergejoin = IntVar(value=1)
+cb_mj = Checkbutton(root, text="enable_mergejoin", variable=enable_mergejoin)
 
-enable_mergejoin = StringVar()
-enable_mergejoin.set(ENABLE_MERGEJOIN_QUERY)
-cb_mj = Checkbutton(root, text="enable_mergejoin", variable=enable_mergejoin,
-                    onvalue=ENABLE_MERGEJOIN_QUERY, offvalue=DISABLE_MERGEJOIN_QUERY)
+enable_indexscan = IntVar(value=1)
+cb_is = Checkbutton(root, text="enable_indexscan", variable=enable_indexscan)
 
-enable_indexscan = StringVar()
-enable_indexscan.set(ENABLE_INDEXSCAN_QUERY)
-cb_is = Checkbutton(root, text="enable_indexscan", variable=enable_indexscan,
-                    onvalue=ENABLE_INDEXSCAN_QUERY, offvalue=DISABLE_INDEXSCAN_QUERY)
-
-enable_bitmapscan = StringVar()
-enable_bitmapscan.set(ENABLE_BITMAPSCAN_QUERY)
-cb_bms = Checkbutton(root, text="enable_bitmapscan", variable=enable_bitmapscan,
-                     onvalue=ENABLE_BITMAPSCAN_QUERY, offvalue=DISABLE_BITMAPSCAN_QUERY)
+enable_seqscan = IntVar(value=1)
+cb_bms = Checkbutton(root, text="enable_seqscan", variable=enable_seqscan)
 
 ### ======================================= ###
 

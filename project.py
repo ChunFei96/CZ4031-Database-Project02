@@ -1,12 +1,9 @@
-import json
+
 import tkinter as tk
 from tkinter import font, ttk, messagebox
-from typing import Text
+
 import interface
-from node_types import ATTRIBUTE
-import sqlparse
-import node_types
-import psycopg2
+
 
 
 def retrieveInput():
