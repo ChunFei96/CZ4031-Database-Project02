@@ -11,10 +11,9 @@ def init_ui():
     root = Tk()
     root.title('Project 2: Query Plan')
     root.geometry('1280x900')
-    # root.resizable(False, False)
+    root.resizable(False, False)
 
     ###  GUI for Query ###
-
     class QueryFrame(Frame):
         def __init__(self, root):
             Frame.__init__(self, root)

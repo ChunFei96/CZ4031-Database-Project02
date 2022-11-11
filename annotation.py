@@ -1,5 +1,7 @@
 from treelib import Node, Tree
 import re
+
+
 class Annotation:
 
     def __int__(self):
@@ -30,7 +32,8 @@ class Annotation:
             if parent is None:
                 node = tree.create_node(tag=plan['Node Type'], data=plan)
             else:
-                node = tree.create_node(tag=plan['Node Type'], data=plan, parent=parent.identifier)
+                node = tree.create_node(
+                    tag=plan['Node Type'], data=plan, parent=parent.identifier)
 
             if "Plans" in plan:
                 self.buildTree(plan["Plans"], tree, node)
@@ -48,16 +51,17 @@ class Annotation:
                 tableName = node.data["Relation Name"]
                 totalCost = node.data["Total Cost"]
 
-                explanation += "{} table is read using sequential scan. This is because no index is created in the table.\n".format(tableName)
+                explanation += "{} table is read using sequential scan. This is because no index is created in the table.\n".format(
+                    tableName)
                 explanation += "Total cost is {}".format(totalCost)
-
 
             elif node.tag == "Index Scan":
                 tableName = node.data["Relation Name"]
                 indexName = node.data["Index Name"]
                 totalCost = node.data["Total Cost"]
 
-                explanation += "{} table is read using index scan. This is because index {} is created in the table.\n".format(tableName, indexName)
+                explanation += "{} table is read using index scan. This is because index {} is created in the table.\n".format(
+                    tableName, indexName)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Bitmap Heap Scan":
@@ -65,7 +69,8 @@ class Annotation:
                 joinCond = node.data["Recheck Cond"]
                 totalCost = node.data["Total Cost"]
 
-                explanation += "{} table is read using bitmap heap scan with the join condition {}.\n".format(tableName, joinCond)
+                explanation += "{} table is read using bitmap heap scan with the join condition {}.\n".format(
+                    tableName, joinCond)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Bitmap Index Scan":
@@ -74,21 +79,24 @@ class Annotation:
                 totalCost = node.data["Total Cost"]
                 tableName = indexName.split('_')[0]
 
-                explanation += "{} table is read using bitmap heap scan with the join condition {}. This is because index {} is created in the table. \n".format(tableName, joinCond, indexName)
+                explanation += "{} table is read using bitmap heap scan with the join condition {}. This is because index {} is created in the table. \n".format(
+                    tableName, joinCond, indexName)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Hash Join":
                 joinCond = node.data["Hash Cond"]
                 totalCost = node.data["Total Cost"]
 
-                explanation += "This join is implemented using hash join operator with the join condition {}.\n".format(joinCond)
+                explanation += "This join is implemented using hash join operator with the join condition {}.\n".format(
+                    joinCond)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Merge Join":
                 joinCond = node.data["Merge Cond"]
                 totalCost = node.data["Total Cost"]
 
-                explanation += "This join is implemented using merge join operator with the join condition {}.\n".format(joinCond)
+                explanation += "This join is implemented using merge join operator with the join condition {}.\n".format(
+                    joinCond)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Nested Loop":
@@ -101,28 +109,32 @@ class Annotation:
                 totalCost = node.data["Total Cost"]
                 sortKey = node.data["Sort Key"]
 
-                explanation += "The sort by using sort key {}.\n".format(sortKey)
+                explanation += "The sort by using sort key {}.\n".format(
+                    sortKey)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Incremental Sort":
                 totalCost = node.data["Total Cost"]
                 sortKey = node.data["Sort Key"]
 
-                explanation += "Incremental sort is performed with the sort key {}.\n".format(sortKey)
+                explanation += "Incremental sort is performed with the sort key {}.\n".format(
+                    sortKey)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Hash":
                 totalCost = node.data["Total Cost"]
                 hashBucket = node.data["Hash Buckets"]
 
-                explanation += "The hash into {} hash buckets.\n".format(hashBucket)
+                explanation += "The hash into {} hash buckets.\n".format(
+                    hashBucket)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Aggregate":
                 totalCost = node.data["Total Cost"]
                 groupKey = node.data["Group Key"]
 
-                explanation += "Aggregate is performed with the group key {}.\n".format(groupKey)
+                explanation += "Aggregate is performed with the group key {}.\n".format(
+                    groupKey)
                 explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Gather Merge":
@@ -175,7 +187,6 @@ class Annotation:
 
                     result_dict[node.identifier] = pos
 
-
             elif node.tag == "Merge Join":
                 toHighlight = node.data['Merge Cond']
                 if '=' in toHighlight:
@@ -216,7 +227,8 @@ class Annotation:
                 toHighlightList = node.data['Group Key']
 
                 for elems in toHighlightList:
-                    for elem in elems.split('.'): # {customer.c_custkey, nation.n_name}
+                    # {customer.c_custkey, nation.n_name}
+                    for elem in elems.split('.'):
                         for match in re.finditer(elem, inputquery):
                             pos.append((match.start(), match.end()))
                             break
@@ -226,4 +238,4 @@ class Annotation:
                         else:
                             result_dict[node.identifier] = pos
 
-        return result_dict;
+        return result_dict
