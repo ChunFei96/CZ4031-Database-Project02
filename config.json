@@ -2,8 +2,8 @@
     "pg_db": {
         "host": "localhost",
         "port": "5432",
-        "database": "tpc-h",
+        "database": "TPC-H",
         "user": "postgres",
-        "password": "admin"   
+        "password": "root"   
     }
 }

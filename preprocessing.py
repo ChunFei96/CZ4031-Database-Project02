@@ -4,6 +4,7 @@ import psycopg2
 import json
 from tkinter import messagebox
 
+
 class Preprocessing:
     # PREPROCESSING .TBL FILES TO CSV
 
@@ -36,11 +37,11 @@ class Preprocessing:
             # connect to postgres in this format
             db_conf = config['pg_db']
             conn = psycopg2.connect(
-                host = db_conf["host"],
-                database = db_conf["database"],
-                user = db_conf["user"],
-                password = db_conf["password"],
-                port = db_conf["port"]
+                host=db_conf["host"],
+                database=db_conf["database"],
+                user=db_conf["user"],
+                password=db_conf["password"],
+                port=db_conf["port"]
             )
             cur = conn.cursor()
 
@@ -114,7 +115,6 @@ class Preprocessing:
         tbl.close()
         csv.close()
 
-
     # Main
     filenames = [
         "customer",
@@ -127,5 +127,5 @@ class Preprocessing:
         "supplier",
     ]
 
-    #for filename in filenames:
+    # for filename in filenames:
     #    tbl_to_csv(filename)
