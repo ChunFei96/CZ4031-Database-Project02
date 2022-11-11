@@ -101,8 +101,7 @@ def connect():
             print('Data`base connection closed.')
     cur = conn.cursor()
 
-
-connect()
+#connect()
 
 # Main
 filenames = [
@@ -116,5 +115,5 @@ filenames = [
     "supplier",
 ]
 
-for filename in filenames:
-    tbl_to_csv(filename)
+#for filename in filenames:
+#    tbl_to_csv(filename)
