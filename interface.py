@@ -215,14 +215,14 @@ def init_ui():
 
         annotation = Annotation()
         treeQEP = Tree()
-        treeQEP = annotation.buildTree([plan_QEP[0]['Plan']], treeQEP)
+        treeQEP = annotation.buildQueryTree([plan_QEP[0]['Plan']], treeQEP)
         treeQEP_highlight = annotation.matchNodeToQuery(treeQEP, inputValue)
         treeQEP_annotation = annotation.annotate(treeQEP, inputValue)
         qepGraphicframe.draw_tree(
             treeQEP, treeQEP_highlight, treeQEP_annotation, qepAnnotationBox)
 
         treeAQP = Tree()
-        treeAQP = annotation.buildTree([plan_AQP[0]['Plan']], treeAQP)
+        treeAQP = annotation.buildQueryTree([plan_AQP[0]['Plan']], treeAQP)
         treeAQP_highlight = annotation.matchNodeToQuery(treeAQP, inputValue)
         treeAQP_annotation = annotation.annotate(treeAQP, inputValue)
         aqpGraphicframe.draw_tree(

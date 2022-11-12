@@ -1,28 +1,12 @@
-from treelib import Node, Tree
+from treelib import Tree
 import re
-
 
 class Annotation:
 
     def __int__(self):
         pass
-    # def tranverse_QueryPlan(self, query):
-    #
-    #     queryPlans = []
-    #
-    #     if "Plans" in query:
-    #         for plan in query["Plans"]:
-    #             leafPlan = self.tranverse_QueryPlan(plan)
-    #             if len(leafPlan) <= 1:
-    #                 queryPlans.append(leafPlan[0])
-    #             elif len(leafPlan) >= 2:
-    #                 queryPlans.extend(leafPlan)
-    #
-    #     queryPlans.append(query)
-    #
-    #     return queryPlans
 
-    def buildTree(self, plan_list, tree=None, parent=None):
+    def buildQueryTree(self, plan_list, tree=None, parent=None):
 
         if tree is None:
             tree = Tree()
@@ -36,7 +20,7 @@ class Annotation:
                     tag=plan['Node Type'], data=plan, parent=parent.identifier)
 
             if "Plans" in plan:
-                self.buildTree(plan["Plans"], tree, node)
+                self.buildQueryTree(plan["Plans"], tree, node)
 
         return tree
 
@@ -61,6 +45,15 @@ class Annotation:
                 totalCost = node.data["Total Cost"]
 
                 explanation += "{} table is read using index scan. This is because index {} is created in the table.\n".format(
+                    tableName, indexName)
+                explanation += "Total cost is {}".format(totalCost)
+
+            elif node.tag == "Index Only Scan":
+                tableName = node.data["Relation Name"]
+                indexName = node.data["Index Name"]
+                totalCost = node.data["Total Cost"]
+
+                explanation += "{} table is read using index only scan. This is because index {} is created in the table.\n".format(
                     tableName, indexName)
                 explanation += "Total cost is {}".format(totalCost)
 
@@ -131,16 +124,45 @@ class Annotation:
 
             elif node.tag == "Aggregate":
                 totalCost = node.data["Total Cost"]
-                groupKey = node.data["Group Key"]
 
-                explanation += "Aggregate is performed with the group key {}.\n".format(
-                    groupKey)
-                explanation += "Total cost is {}".format(totalCost)
+                if 'Group Key' in node.data:
+                    groupKey = node.data["Group Key"]
+
+                    explanation += "Aggregate is performed with the group key {}.\n".format(
+                        groupKey)
+                    explanation += "Total cost is {}".format(totalCost)
+                else:
+                    explanation += "Aggregate is performed.\n"
+                    explanation += "Total cost is {}".format(totalCost)
 
             elif node.tag == "Gather Merge":
                 totalCost = node.data["Total Cost"]
 
                 explanation += "Gather Merge is performed.\n"
+                explanation += "Total cost is {}".format(totalCost)
+
+            elif node.tag == "Gather":
+                totalCost = node.data["Total Cost"]
+
+                explanation += "Gather is performed.\n"
+                explanation += "Total cost is {}".format(totalCost)
+
+            elif node.tag == "Limit":
+                totalCost = node.data["Total Cost"]
+
+                explanation += "Limit is performed.\n"
+                explanation += "Total cost is {}".format(totalCost)
+
+            elif node.tag == "Memoize":
+                totalCost = node.data["Total Cost"]
+
+                explanation += "Memoize is performed.\n"
+                explanation += "Total cost is {}".format(totalCost)
+
+            elif node.tag == "Materialize":
+                totalCost = node.data["Total Cost"]
+
+                explanation += "Materialize is performed.\n"
                 explanation += "Total cost is {}".format(totalCost)
 
             result_dict[node.identifier] = explanation
@@ -154,7 +176,6 @@ class Annotation:
         regex = re.compile('[^a-zA-Z._]')
         for node in nodeList:
             pos = []
-            toHighlight = ""
 
             if node.tag == "Seq Scan" or node.tag == "Index Scan":
                 toHighlight = node.data['Relation Name']
@@ -208,34 +229,22 @@ class Annotation:
 
                     result_dict[node.identifier] = pos
 
-            elif node.tag == "Sort":
-                pass
-                # toHighlight = node.data['Sort Key'][0]
-                # toHighlightList = re.split(',[.]', toHighlight)
-                #
-                # for elem in toHighlightList:
-                #     for match in re.finditer(elem, inputquery):
-                #         pos.append((match.start(), match.end()))
-                #
-                #     if node in result_dict:
-                #         result_dict[node.identifier] = result_dict[node] + pos
-                #     else:
-                #         result_dict[node.identifier] = pos
-
             elif node.tag == "Aggregate":
                 # return list
-                toHighlightList = node.data['Group Key']
+                if 'Group Key' in node.data:
+                    toHighlightList = node.data['Group Key']
 
-                for elems in toHighlightList:
-                    # {customer.c_custkey, nation.n_name}
-                    for elem in elems.split('.'):
-                        for match in re.finditer(elem, inputquery):
-                            pos.append((match.start(), match.end()))
-                            break
+                    for elems in toHighlightList:
+                        # {customer.c_custkey, nation.n_name}
+                        for elem in elems.split('.'):
+                            elem = elem.replace('(','').replace(')','')
+                            for match in re.finditer(elem, inputquery):
+                                pos.append((match.start(), match.end()))
+                                break
 
-                        if node.identifier in result_dict:
-                            result_dict[node.identifier] = result_dict[node.identifier] + pos
-                        else:
-                            result_dict[node.identifier] = pos
+                            if node.identifier in result_dict:
+                                result_dict[node.identifier] = result_dict[node.identifier] + pos
+                            else:
+                                result_dict[node.identifier] = pos
 
         return result_dict

@@ -1,6 +1,6 @@
 select
 	ps_partkey,
-	sum(ps_supplycost * ps_availqty) as value
+	sum(ps_supplycost * ps_availgty) as value
 from
 	partsupp,
 	supplier,
@@ -11,9 +11,9 @@ where
 	and n_name = 'SAUDI ARABIA'
 group by
 	ps_partkey having
-		sum(ps_supplycost * ps_availqty) > (
+		sum(ps_supplycost * ps_availgty) > (
 			select
-				sum(ps_supplycost * ps_availqty) * 0.0001000000
+				sum(ps_supplycost * ps_availgty) * 0.0001000000
 			from
 				partsupp,
 				supplier,
