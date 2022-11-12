@@ -1,3 +1,4 @@
 import interface
 
-interface.init_ui()
+if __name__ == "__main__":
+    interface.init_ui()

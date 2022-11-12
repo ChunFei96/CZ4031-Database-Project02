@@ -1,6 +1,5 @@
 import json
 from tkinter import *
-import node_types
 from annotation import Annotation
 from treelib import Tree
 import sqlparse
@@ -46,15 +45,11 @@ def init_ui():
                 index += 1
 
         def highlight_text(self, start, end, node_type):
-            if node_type in node_types.NODE_TYPES:
-                self.text.tag_add(
-                    node_type, self.line_column[start], self.line_column[end])
-            else:
-                self.text.tag_add(
-                    'OTHER', self.line_column[start], self.line_column[end])
+            self.text.tag_add(
+                'OTHER', self.line_column[start], self.line_column[end])
 
-        def clear_highlighting(self):
-            for node_type in node_types.NODE_TYPES + ['OTHER']:
+        def clear_highlighting(self, node_type):
+            for node_type in self.text.tag_names():
                 self.text.tag_remove(node_type, '1.0', 'end')
 
         def get_text(self):
@@ -244,7 +239,7 @@ def init_ui():
                     queryBox.highlight_text(pos[0], pos[1], node.tag)
 
         def on_hover_end_listener(node):
-            queryBox.clear_highlighting()
+            queryBox.clear_highlighting(node.tag)
 
         qepGraphicframe.set_on_click_listener(
             on_click_listener, treeQEP_annotation, qepAnnotationBox)
