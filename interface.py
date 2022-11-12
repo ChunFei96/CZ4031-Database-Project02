@@ -27,20 +27,17 @@ def init_ui():
             self.text.tag_configure(
                 'OTHER', background='#fbef7f', foreground='black')
 
-            self.index_map = {}
-            self.query = None
-
-        def set_query(self, query):
+        def construct_query(self, query):
             self.query = query
             self.text.delete('1.0', 'end')
             self.text.insert('end', query)
 
-            self.index_map = {}
+            self.line_column = {}
             line = 1
             column = 0
             index = 0
             while index <= len(query):
-                self.index_map[index] = f'{line}.{column}'
+                self.line_column[index] = f'{line}.{column}'
                 if index < len(query) and query[index] == '\n':
                     line += 1
                     column = 0
@@ -51,10 +48,10 @@ def init_ui():
         def highlight_text(self, start, end, node_type):
             if node_type in node_types.NODE_TYPES:
                 self.text.tag_add(
-                    node_type, self.index_map[start], self.index_map[end])
+                    node_type, self.line_column[start], self.line_column[end])
             else:
                 self.text.tag_add(
-                    'OTHER', self.index_map[start], self.index_map[end])
+                    'OTHER', self.line_column[start], self.line_column[end])
 
         def clear_highlighting(self):
             for node_type in node_types.NODE_TYPES + ['OTHER']:
@@ -86,9 +83,6 @@ def init_ui():
             self.text.tag_configure(
                 'OTHER', background='#fbef7f', foreground='black')
 
-            self.index_map = {}
-            self.query = None
-
         def show_node_annotation(self, annotation):
             self.text.configure(state="normal")
             self.text.delete('1.0', 'end')
@@ -114,10 +108,6 @@ def init_ui():
             self.scrollbar = Scrollbar(
                 self, orient='vertical', command=self.canvas.yview)
             self.scrollbar.grid(row=0, column=2, sticky='e')
-
-            self._on_hover_listener = None
-            self._on_click_listener = None
-            self._on_hover_end_listener = None
 
         def draw_tree(self, tree, highlight, annotation, annotationBox):
             root_node = tree.get_node(tree.root)
@@ -226,7 +216,7 @@ def init_ui():
         inputValue = sqlparse.format(
             inputValue, reindent=True, keyword_case='upper')
 
-        queryBox.set_query(inputValue)
+        queryBox.construct_query(inputValue)
 
         annotation = Annotation()
         treeQEP = Tree()
